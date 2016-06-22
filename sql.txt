@@ -1,0 +1,61 @@
+CREATE table "CUSTOMER" (
+    "CUSTOMER_NO"    NUMBER(10,0),
+    "CUSTOMER_NAME"  VARCHAR2(40) NOT NULL,
+    "CUSTOMER_EMAIL" VARCHAR2(30) NOT NULL,
+    "CUSTOMER_PHONE" NUMBER(10,0) NOT NULL,
+    constraint  "CUSTOMER_PK" primary key ("CUSTOMER_NO")
+)
+/
+
+CREATE table "INVOICE" (
+    "INVOICE_NUMBER" NUMBER(10,0),
+    "INVOICE_DATE"   DATE,
+    "AMOUNT"         NUMBER(20,0),
+    "CUSTOMER_REF"   NUMBER(10,0),
+    constraint  "INVOICE_PK" primary key ("INVOICE_NUMBER")
+)
+/
+
+ALTER TABLE "INVOICE" ADD CONSTRAINT "INVOICE_FK" 
+FOREIGN KEY ("CUSTOMER_REF")
+REFERENCES "CUSTOMER" ("CUSTOMER_NO")
+
+/
+
+CREATE OR REPLACE PROCEDURE 
+add_customer(p_customer_num customer.customer_no%TYPE, p_customer_name customer.customer_name%TYPE, p_customer_email customer.customer_email%TYPE, p_customer_phone customer.customer_phone%TYPE)
+IS
+BEGIN
+INSERT INTO customer values(p_customer_num, p_customer_name, p_customer_email, p_customer_phone);
+END;
+
+begin
+add_customer(1028, 'Dabang','abc@abc.com',254689);
+END add_customer;
+
+
+creation of query
+------------------------------------------
+------------------------------------------
+
+CREATE OR REPLACE PROCEDURE query_customer
+(p_customer_num IN customer.customer_no%TYPE, p_customer_name OUT customer.customer_name%TYPE, p_customer_email OUT customer.customer_email%TYPE)
+IS
+BEGIN
+SELECT Customer_name, Customer_email into p_customer_name, p_customer_email from customer 
+WHERE Customer_no = p_customer_num;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+  RAISE_APPLICATION_ERROR(-20036,'CUSTOMER DOES NOT EXIST');
+END;
+
+declare
+v_customer_name customer.customer_name%TYPE;
+v_customer_email customer.customer_email%TYPE;
+begin
+query_customer (1024, v_customer_name, v_customer_email);
+
+dbms_output.put_line(v_customer_name);
+dbms_output.put_line(v_customer_email);
+end;
+
